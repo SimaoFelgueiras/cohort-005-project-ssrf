@@ -45,14 +45,14 @@ The 14 calendar days from the day of the Purchase, including the last day, durin
 _Avoid_: Cancel window, cancellation period
 
 **Refund Eligibility**:
-Whether a Purchase can still have a Refund Request made against it. It requires all of the following: the Refund Window is open, the learner has watched less than 2 hours, the learner has completed less than half of the lessons, the Purchase is not a claimed Team Seat, and no Refund Request on it is still Requested.
+Whether a Purchase can still have a Refund Request made against it. It requires all of the following: the Refund Window is open, the learner has watched less than 2 hours, the learner has completed less than half of the lessons, the Purchase is not a claimed Team Seat, and no Refund Request on it is still Open.
 _Avoid_: Cancellation offer, cancellable
 
 ### Refund Request states
 
-**Requested**:
+**Open**:
 A Refund Request that staff have not yet approved or declined.
-_Avoid_: Pending, open, Pending Chargeback
+_Avoid_: Pending, Requested, Awaiting review, Pending Chargeback
 
 **Approved**:
 A Refund Request that staff accepted, so a Refund is owed.

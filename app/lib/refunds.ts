@@ -9,7 +9,7 @@ export const REFUND_WATCH_LIMIT_SECONDS = 2 * 60 * 60;
 export const REFUND_COMPLETION_LIMIT = 0.5;
 
 export type RefundIneligibleReason =
-  | "refund-already-requested"
+  | "open-refund-request"
   | "claimed-team-seat"
   | "window-closed"
   | "watched-too-much"
@@ -22,7 +22,7 @@ export type RefundEligibility =
 export interface RefundFacts {
   purchasedAt: string;
   amountPaid: number;
-  hasRequestedRefund: boolean;
+  hasOpenRefundRequest: boolean;
   isClaimedTeamSeat: boolean;
   secondsWatched: number;
   completedLessonCount: number;
@@ -48,8 +48,8 @@ export function assessRefundEligibility(
   facts: RefundFacts,
   now: Date
 ): RefundEligibility {
-  if (facts.hasRequestedRefund) {
-    return { eligible: false, reason: "refund-already-requested" };
+  if (facts.hasOpenRefundRequest) {
+    return { eligible: false, reason: "open-refund-request" };
   }
 
   if (facts.isClaimedTeamSeat) {

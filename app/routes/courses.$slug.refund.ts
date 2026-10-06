@@ -32,8 +32,8 @@ const ineligibleResponses: Record<
   RefundIneligibleReason,
   { message: string; status: number }
 > = {
-  "refund-already-requested": {
-    message: "You have already requested a refund for this purchase.",
+  "open-refund-request": {
+    message: "You already have an open refund request on this purchase.",
     status: 409,
   },
   "claimed-team-seat": {
@@ -62,7 +62,7 @@ function getCourseBySlug(slug: string) {
  * The confirmation the learner gets in their inbox. There is no mail
  * transport wired up yet, so the built message goes to the server log.
  */
-function buildRefundRequestedEmail(input: {
+function buildRefundRequestEmail(input: {
   learnerName: string;
   learnerEmail: string;
   courseTitle: string;
@@ -131,12 +131,12 @@ export async function action({ params, request }: Route.ActionArgs) {
   db.insert(refunds)
     .values({
       purchaseId: purchase.id,
-      status: RefundStatus.Requested,
+      status: RefundStatus.Open,
       reason: parsed.data.reason,
     })
     .run();
 
-  const email = buildRefundRequestedEmail({
+  const email = buildRefundRequestEmail({
     learnerName: learner.name,
     learnerEmail: learner.email,
     courseTitle: course.title,

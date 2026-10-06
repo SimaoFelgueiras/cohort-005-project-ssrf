@@ -22,14 +22,14 @@ export function getLatestPurchase(userId: number, courseId: number) {
     .get();
 }
 
-function hasRequestedRefund(purchaseId: number) {
+function hasOpenRefundRequest(purchaseId: number) {
   const row = db
     .select({ id: refunds.id })
     .from(refunds)
     .where(
       and(
         eq(refunds.purchaseId, purchaseId),
-        eq(refunds.status, RefundStatus.Requested)
+        eq(refunds.status, RefundStatus.Open)
       )
     )
     .get();
@@ -113,7 +113,7 @@ export function getRefundEligibility(
     {
       purchasedAt: purchase.createdAt,
       amountPaid: purchase.amountPaid,
-      hasRequestedRefund: hasRequestedRefund(purchase.id),
+      hasOpenRefundRequest: hasOpenRefundRequest(purchase.id),
       isClaimedTeamSeat: isClaimedTeamSeat(purchase.id),
       secondsWatched: getSecondsWatched(userId, lessonIds),
       completedLessonCount: getCompletedLessonCount(userId, lessonIds),

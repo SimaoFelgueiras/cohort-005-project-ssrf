@@ -10,7 +10,7 @@ const purchasedAt = new Date(2026, 10, 1, 23, 0).toISOString();
 const eligibleFacts: RefundFacts = {
   purchasedAt,
   amountPaid: 7900,
-  hasRequestedRefund: false,
+  hasOpenRefundRequest: false,
   isClaimedTeamSeat: false,
   secondsWatched: 0,
   completedLessonCount: 0,
@@ -41,13 +41,13 @@ describe("assessRefundEligibility", () => {
     });
   });
 
-  it("refuses when a Refund Request is already Requested", () => {
+  it("refuses when a Refund Request is already Open", () => {
     expect(
       assessRefundEligibility(
-        { ...eligibleFacts, hasRequestedRefund: true },
+        { ...eligibleFacts, hasOpenRefundRequest: true },
         dayOfWindow(1)
       )
-    ).toEqual({ eligible: false, reason: "refund-already-requested" });
+    ).toEqual({ eligible: false, reason: "open-refund-request" });
   });
 
   it("refuses a claimed Team Seat", () => {
