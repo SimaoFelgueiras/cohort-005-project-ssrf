@@ -50,8 +50,10 @@ import {
 } from "~/lib/ppp";
 import {
   getLatestPurchase,
+  getLatestRefundRequest,
   getRefundEligibility,
 } from "~/lib/refunds.server";
+import { RefundOutcome } from "~/components/refund-request-status";
 import { parseFormData } from "~/lib/validation";
 import { MAX_RATING, MIN_RATING } from "~/lib/ratings";
 import { StarRating, StarRatingInput } from "~/components/star-rating";
@@ -415,9 +417,17 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   let lessonProgressMap: Record<number, string> = {};
   let nextLessonId: number | null = null;
   let refundOffer: { amount: number; lastDayInWindow: string } | null = null;
+  let latestRefundRequest: ReturnType<typeof getLatestRefundRequest> = undefined;
 
   if (currentUserId) {
     enrolled = isUserEnrolled(currentUserId, course.id);
+
+    // Only the latest Purchase counts: a learner who buys again after a
+    // Refund starts fresh, with no Refund Request on the new Purchase.
+    const latestPurchase = getLatestPurchase(currentUserId, course.id);
+    if (latestPurchase) {
+      latestRefundRequest = getLatestRefundRequest(latestPurchase.id);
+    }
 
     if (enrolled) {
       refundOffer = getRefundOffer(currentUserId, course.id);
@@ -465,6 +475,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     ratingSummary,
     userRating,
     refundOffer,
+    latestRefundRequest: latestRefundRequest ?? null,
   };
 }
 
@@ -566,6 +577,7 @@ export default function CourseDetail({ loaderData }: Route.ComponentProps) {
     ratingSummary,
     userRating,
     refundOffer,
+    latestRefundRequest,
   } = loaderData;
   const isInstructor = currentUserId === course.instructorId;
   const [searchParams, setSearchParams] = useSearchParams();
@@ -801,6 +813,11 @@ export default function CourseDetail({ loaderData }: Route.ComponentProps) {
                     </Button>
                   </Link>
                   <RateCourse userRating={userRating} />
+                  {latestRefundRequest && (
+                    <div className="border-t pt-4">
+                      <RefundOutcome refundRequest={latestRefundRequest} />
+                    </div>
+                  )}
                   {refundOffer && (
                     <RequestRefund
                       slug={course.slug}
@@ -809,7 +826,14 @@ export default function CourseDetail({ loaderData }: Route.ComponentProps) {
                   )}
                 </>
               ) : (
-                enrollButton
+                <>
+                  {latestRefundRequest && (
+                    <div className="rounded-md bg-muted/50 p-3">
+                      <RefundOutcome refundRequest={latestRefundRequest} />
+                    </div>
+                  )}
+                  {enrollButton}
+                </>
               )}
               <div className="space-y-2 pt-2 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">

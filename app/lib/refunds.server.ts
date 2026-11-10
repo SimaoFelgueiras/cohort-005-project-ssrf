@@ -136,6 +136,48 @@ export function getRefundEligibility(
   );
 }
 
+// ─── The learner's side: what happened to their Refund Requests ───
+
+const learnerRefundRequestColumns = {
+  id: refunds.id,
+  status: refunds.status,
+  reason: refunds.reason,
+  requestedAt: refunds.requestedAt,
+  resolvedAt: refunds.resolvedAt,
+  amountRefunded: refunds.amountRefunded,
+  decisionNote: refunds.decisionNote,
+};
+
+/**
+ * The most recent Refund Request on a Purchase, in any state, or undefined
+ * when the learner never asked.
+ */
+export function getLatestRefundRequest(purchaseId: number) {
+  return db
+    .select(learnerRefundRequestColumns)
+    .from(refunds)
+    .where(eq(refunds.purchaseId, purchaseId))
+    .orderBy(desc(refunds.requestedAt), desc(refunds.id))
+    .get();
+}
+
+/** Every Refund Request a learner has made, newest first. */
+export function listLearnerRefundRequests(userId: number) {
+  return db
+    .select({
+      ...learnerRefundRequestColumns,
+      amountPaid: purchases.amountPaid,
+      courseTitle: courses.title,
+      courseSlug: courses.slug,
+    })
+    .from(refunds)
+    .innerJoin(purchases, eq(refunds.purchaseId, purchases.id))
+    .innerJoin(courses, eq(purchases.courseId, courses.id))
+    .where(eq(purchases.userId, userId))
+    .orderBy(desc(refunds.requestedAt), desc(refunds.id))
+    .all();
+}
+
 // ─── The admin's side: reviewing and deciding Refund Requests ───
 
 /**
