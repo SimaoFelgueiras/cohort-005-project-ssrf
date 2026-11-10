@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 ---
 
 # An approved Refund reverses the whole sale, including the platform fee
