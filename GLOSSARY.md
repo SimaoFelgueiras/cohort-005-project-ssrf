@@ -22,6 +22,10 @@ _Avoid_: Price (when you mean the amount charged)
 A course price lowered for the learner's country.
 _Avoid_: PPP discount (in prose), regional price
 
+**Admin**:
+A person who runs the platform. Only Admins approve or decline Refund Requests; a course's own instructor cannot.
+_Avoid_: Staff (in code, "staff" also covers a course's instructor)
+
 **Team Seat**:
 A Purchase made as part of a team licence, handed to a learner through a coupon. Once claimed, it belongs to the team, not to the learner.
 _Avoid_: Licence (when you mean one seat)
@@ -33,7 +37,7 @@ A learner's ask, with a reason, to get back what they paid for a Purchase.
 _Avoid_: Cancellation, Reversal, Chargeback, cancel my purchase, cancel my subscription
 
 **Refund**:
-The money returned to the learner once staff approve a Refund Request.
+The money owed back to the learner once an Admin approves a Refund Request. A refunded Purchase no longer gives the learner the course.
 _Avoid_: Reversal, Chargeback, cancellation
 
 **Refund Amount**:
@@ -45,20 +49,20 @@ The 14 calendar days from the day of the Purchase, including the last day, durin
 _Avoid_: Cancel window, cancellation period
 
 **Refund Eligibility**:
-Whether a Purchase can still have a Refund Request made against it. It requires all of the following: the Refund Window is open, the learner has watched less than 2 hours, the learner has completed less than half of the lessons, the Purchase is not a claimed Team Seat, and no Refund Request on it is still Open.
+Whether a Purchase can still have a Refund Request made against it. It requires all of the following: the Refund Window is open, the learner has watched less than 2 hours, the learner has completed less than half of the lessons, the Purchase is not a claimed Team Seat, no Refund Request on it is still Open, and none on it has been Approved. A Declined Refund Request does not stop the learner asking again.
 _Avoid_: Cancellation offer, cancellable
 
 ### Refund Request states
 
 **Open**:
-A Refund Request that staff have not yet approved or declined.
+A Refund Request that an Admin has not yet approved or declined. Refund Eligibility is checked only when the learner asks, not again when an Admin decides.
 _Avoid_: Pending, Requested, Awaiting review, Pending Chargeback
 
 **Approved**:
-A Refund Request that staff accepted, so a Refund is owed.
+A Refund Request that an Admin accepted, so a Refund is owed. Final: it can never become Open or Declined.
 
 **Declined**:
-A Refund Request that staff rejected. No money is returned.
+A Refund Request that an Admin rejected, giving the learner a reason. No money is returned. Final: it can never become Open or Approved.
 _Avoid_: Rejected, denied
 
 ### Not the same thing

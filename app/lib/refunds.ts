@@ -10,6 +10,7 @@ export const REFUND_COMPLETION_LIMIT = 0.5;
 
 export type RefundIneligibleReason =
   | "open-refund-request"
+  | "already-refunded"
   | "claimed-team-seat"
   | "window-closed"
   | "watched-too-much"
@@ -23,6 +24,7 @@ export interface RefundFacts {
   purchasedAt: string;
   amountPaid: number;
   hasOpenRefundRequest: boolean;
+  hasApprovedRefundRequest: boolean;
   isClaimedTeamSeat: boolean;
   secondsWatched: number;
   completedLessonCount: number;
@@ -52,6 +54,11 @@ export function assessRefundEligibility(
     return { eligible: false, reason: "open-refund-request" };
   }
 
+  // A Declined Refund Request does not count — the learner may ask again.
+  if (facts.hasApprovedRefundRequest) {
+    return { eligible: false, reason: "already-refunded" };
+  }
+
   if (facts.isClaimedTeamSeat) {
     return { eligible: false, reason: "claimed-team-seat" };
   }
@@ -78,4 +85,52 @@ export function assessRefundEligibility(
   // The Refund Amount is always what the learner was charged, never the
   // course's current list price.
   return { eligible: true, refundAmount: facts.amountPaid, lastDayInWindow };
+}
+
+// ─── Deciding a Refund Request ───
+// Only an Admin decides, and only an Open Refund Request can be decided:
+// Approved and Declined are final. Refund Eligibility is not checked again
+// here — it was checked when the learner asked.
+
+export const DECISION_NOTE_MIN_LENGTH = 10;
+
+export type RefundDecision =
+  | { kind: "approve" }
+  | { kind: "decline"; note: string };
+
+export type RefundDecisionRefusal = "already-decided" | "note-required";
+
+export type RefundDecisionOutcome =
+  | {
+      ok: true;
+      status: "approved" | "declined";
+      amountRefunded: number | null;
+      decisionNote: string | null;
+    }
+  | { ok: false; reason: RefundDecisionRefusal };
+
+export function decideRefundRequest(
+  request: { status: string; amountPaid: number },
+  decision: RefundDecision
+): RefundDecisionOutcome {
+  if (request.status !== "open") {
+    return { ok: false, reason: "already-decided" };
+  }
+
+  if (decision.kind === "approve") {
+    // The Refund Amount is always the Amount Paid.
+    return {
+      ok: true,
+      status: "approved",
+      amountRefunded: request.amountPaid,
+      decisionNote: null,
+    };
+  }
+
+  const note = decision.note.trim();
+  if (note.length < DECISION_NOTE_MIN_LENGTH) {
+    return { ok: false, reason: "note-required" };
+  }
+
+  return { ok: true, status: "declined", amountRefunded: null, decisionNote: note };
 }

@@ -36,6 +36,10 @@ const ineligibleResponses: Record<
     message: "You already have an open refund request on this purchase.",
     status: 409,
   },
+  "already-refunded": {
+    message: "This purchase has already been refunded.",
+    status: 409,
+  },
   "claimed-team-seat": {
     message: "A claimed team seat cannot be refunded.",
     status: 403,

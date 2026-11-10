@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   assessRefundEligibility,
+  decideRefundRequest,
   REFUND_WATCH_LIMIT_SECONDS,
   type RefundFacts,
 } from "./refunds";
@@ -11,6 +12,7 @@ const eligibleFacts: RefundFacts = {
   purchasedAt,
   amountPaid: 7900,
   hasOpenRefundRequest: false,
+  hasApprovedRefundRequest: false,
   isClaimedTeamSeat: false,
   secondsWatched: 0,
   completedLessonCount: 0,
@@ -94,4 +96,70 @@ describe("assessRefundEligibility", () => {
       ).eligible
     ).toBe(true);
   });
+});
+
+describe("Refund Eligibility after an earlier Refund Request", () => {
+  it("is lost once a Refund Request on the Purchase was Approved", () => {
+    expect(
+      assessRefundEligibility(
+        { ...eligibleFacts, hasApprovedRefundRequest: true },
+        dayOfWindow(3)
+      )
+    ).toEqual({ eligible: false, reason: "already-refunded" });
+  });
+
+  it("survives a Declined Refund Request", () => {
+    // A Declined request is neither Open nor Approved, so nothing blocks it.
+    expect(assessRefundEligibility(eligibleFacts, dayOfWindow(3)).eligible).toBe(
+      true
+    );
+  });
+});
+
+describe("decideRefundRequest", () => {
+  const open = { status: "open", amountPaid: 7900 };
+
+  it("approves an Open Refund Request for the Amount Paid", () => {
+    expect(decideRefundRequest(open, { kind: "approve" })).toEqual({
+      ok: true,
+      status: "approved",
+      amountRefunded: 7900,
+      decisionNote: null,
+    });
+  });
+
+  it("declines with the admin's trimmed note and refunds nothing", () => {
+    expect(
+      decideRefundRequest(open, {
+        kind: "decline",
+        note: "  You finished the whole course.  ",
+      })
+    ).toEqual({
+      ok: true,
+      status: "declined",
+      amountRefunded: null,
+      decisionNote: "You finished the whole course.",
+    });
+  });
+
+  it("refuses to decline without a note", () => {
+    expect(decideRefundRequest(open, { kind: "decline", note: "  no " })).toEqual(
+      { ok: false, reason: "note-required" }
+    );
+  });
+
+  it.each(["approved", "declined"])(
+    "treats a %s Refund Request as final",
+    (status) => {
+      expect(
+        decideRefundRequest({ status, amountPaid: 7900 }, { kind: "approve" })
+      ).toEqual({ ok: false, reason: "already-decided" });
+      expect(
+        decideRefundRequest(
+          { status, amountPaid: 7900 },
+          { kind: "decline", note: "Changing my mind here." }
+        )
+      ).toEqual({ ok: false, reason: "already-decided" });
+    }
+  );
 });
