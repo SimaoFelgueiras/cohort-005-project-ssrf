@@ -30,6 +30,10 @@ _Avoid_: Staff (in code, "staff" also covers a course's instructor)
 A Purchase made as part of a team licence, handed to a learner through a coupon. Once claimed, it belongs to the team, not to the learner.
 _Avoid_: Licence (when you mean one seat)
 
+**Enrollment**:
+A learner's current access to a course. A Purchase or a claimed Team Seat creates it; a Refund ends it. The learner's progress is not part of the Enrollment and outlives it.
+_Avoid_: Purchase (when you mean access), subscription
+
 ### Getting money back
 
 **Refund Request**:
