@@ -30,6 +30,10 @@ _Avoid_: Staff (in code, "staff" also covers a course's instructor)
 A Purchase made as part of a team licence, handed to a learner through a coupon. Once claimed, it belongs to the team, not to the learner.
 _Avoid_: Licence (when you mean one seat)
 
+**Team Admin**:
+The learner who bought a team licence and hands out its Team Seats. A Team Admin is not an Admin and cannot decide Refund Requests.
+_Avoid_: Admin (on its own, for this role)
+
 **Enrollment**:
 A learner's current access to a course. A Purchase or a claimed Team Seat creates it; a Refund ends it. The learner's progress is not part of the Enrollment and outlives it.
 _Avoid_: Purchase (when you mean access), subscription
@@ -41,7 +45,7 @@ A learner's ask, with a reason, to get back what they paid for a Purchase.
 _Avoid_: Cancellation, Reversal, Chargeback, cancel my purchase, cancel my subscription
 
 **Refund**:
-The money owed back to the learner once an Admin approves a Refund Request. A refunded Purchase no longer gives the learner the course.
+The money owed back to the learner once an Admin approves a Refund Request. A refunded Purchase no longer gives the learner the course. The learner may buy the course again later as a new Purchase.
 _Avoid_: Reversal, Chargeback, cancellation
 
 **Refund Amount**:

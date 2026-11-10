@@ -13,6 +13,7 @@ import {
   modules,
   lessons,
   lessonProgress,
+  enrollments,
   teams,
   teamMembers,
   TeamMemberRole,
@@ -164,6 +165,15 @@ function getRecentlyProgressedCourses(userId: number, limit: number = 3) {
     .innerJoin(lessons, eq(lessonProgress.lessonId, lessons.id))
     .innerJoin(modules, eq(lessons.moduleId, modules.id))
     .innerJoin(courses, eq(modules.courseId, courses.id))
+    // Progress outlives an Enrollment (a Refund ends it), so only list courses
+    // the learner still has.
+    .innerJoin(
+      enrollments,
+      and(
+        eq(enrollments.courseId, courses.id),
+        eq(enrollments.userId, userId)
+      )
+    )
     .where(eq(lessonProgress.userId, userId))
     .groupBy(courses.id)
     .orderBy(desc(sql`max(${lessonProgress.id})`))
