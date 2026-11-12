@@ -164,6 +164,24 @@ export async function requireContentAccess(
 }
 
 /**
+ * Throws 401 when signed out, 403 unless the user is a Platform Admin.
+ * Returns the admin's user row.
+ */
+export async function requireAdmin(
+  request: Request,
+  forbiddenMessage = "Only admins can do that."
+) {
+  const userId = await requireUserId(request);
+  const user = getUserById(userId);
+
+  if (!user || user.role !== UserRole.Admin) {
+    throw data(forbiddenMessage, { status: 403 });
+  }
+
+  return user;
+}
+
+/**
  * Throws unless the user is the course's own instructor, or an admin.
  */
 export async function requireStaff(

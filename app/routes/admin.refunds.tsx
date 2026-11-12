@@ -3,9 +3,9 @@ import { useFetcher, useSearchParams } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 import type { Route } from "./+types/admin.refunds";
-import { getCurrentUserId } from "~/lib/session";
+import { requireAdmin } from "~/lib/access.server";
 import { parseFormData } from "~/lib/validation";
-import { RefundStatus, UserRole, users } from "~/db/schema";
+import { RefundStatus } from "~/db/schema";
 import { db } from "~/db";
 import { eq } from "drizzle-orm";
 import { Card, CardContent } from "~/components/ui/card";
@@ -48,29 +48,12 @@ const adminRefundActionSchema = z.discriminatedUnion("intent", [
   }),
 ]);
 
-function getUserById(id: number) {
-  return db.select().from(users).where(eq(users.id, id)).get();
-}
-
 /** Only a Platform Admin decides Refund Requests. */
-async function requirePlatformAdmin(request: Request) {
-  const currentUserId = await getCurrentUserId(request);
-
-  if (!currentUserId) {
-    throw data("Select a user from the DevUI panel to review refunds.", {
-      status: 401,
-    });
-  }
-
-  const currentUser = getUserById(currentUserId);
-
-  if (!currentUser || currentUser.role !== UserRole.Admin) {
-    throw data("Only Platform Admins can review refund requests.", {
-      status: 403,
-    });
-  }
-
-  return currentUser;
+function requirePlatformAdmin(request: Request) {
+  return requireAdmin(
+    request,
+    "Only Platform Admins can review refund requests."
+  );
 }
 
 export function meta() {
